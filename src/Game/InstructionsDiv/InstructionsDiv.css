@@ -1,0 +1,8 @@
+.InstructionsDiv{
+    border: 3px white solid;
+    border-radius: 20px;
+    color: white;
+    background-color: grey;
+    padding: 10px;
+    font-size: 30px;
+}
