@@ -7,67 +7,110 @@ import skillsList from './skillsList.js';
 import Timer from './Timer/Timer.jsx';
 import RecordWindow from './RecordWindow/RecordWindow.jsx';
 
+//сделать рестарт и появление окна рекорда через display: none/flex или опасити хз
 
 export default function Game() {
     let [isGameStarted, setIsGameStarted] = useState(false);
-    let [instructions, setInstructions] = useState({});
+    let [instructions, setInstructions] = useState('');
     let [spheresRow, setSpheresRow] = useState(['', '', '']);
     let [castedSkills, setCastedSkills] = useState(['', '']);
     let [record, setRecord] = useState(0);
     let [tries, setTries] = useState(0);
+    let [isRecordWindowShowed, setIsRecordWindowShowed] = useState(false);     
+    let [bestRecord, setBestRecord] = useState(0);  
+    
+    function restartGame(){
+        castedSkills = ['', ''];
+        setCastedSkills(castedSkills);
+        record = 0;
+        setRecord(record)
+        isGameStarted = true;
+        setIsGameStarted(isGameStarted);
+        instructions = getRandomSkill(skillsList).skillName;
+        setInstructions(instructions);
+        tries++;
+        setTries(tries)
+        isRecordWindowShowed = false
+        setIsRecordWindowShowed(false)
+        console.log('gamestarted')
+    }    
 
-    useEffect(() => {
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !isGameStarted){
-                isGameStarted = true;
-                setIsGameStarted(isGameStarted);
-                instructions = getRandomSkill(skillsList);
-                setInstructions(instructions);
-                tries++;
-                setTries(tries)
-                
-                           
+    function hideRecordWindow(){
+        isRecordWindowShowed = false; 
+        setIsRecordWindowShowed(false)
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter' && !isGameStarted){
+            if (isRecordWindowShowed){
+                hideRecordWindow()
             }
-            if((event.key === 'q' || event.key === 'Q') && isGameStarted){
-                addToSpheresRow('Q')
-            }
-            if((event.key === 'W' || event.key === 'w') && isGameStarted){
-                addToSpheresRow('W')
-            }
-            if((event.key === 'E' || event.key === 'e') && isGameStarted){
-                addToSpheresRow('E')
-    
-            }
-            if((event.key === 'D' || event.key === 'd') && isGameStarted){
-    
-            }
-            if((event.key === 'F' || event.key === 'f') && isGameStarted){
-    
-            }
-            if((event.key === 'R' || event.key === 'r') && isGameStarted){
-                let nsr = [...spheresRow];
-                if (combinationCheck(nsr, instructions.combination.split(""))){
-                    addToCastedSkills(instructions.skillName);
-                    let newInstructions = getRandomSkill(skillsList);
-                    if (newInstructions === instructions){
-                        skillsList.splice(newInstructions.id, 1)
-                        instructions = getRandomSkill(skillsList);
-                        setInstructions(instructions);
-                        return;
-                    }
-                    if (newInstructions !== instructions){
-                        instructions = newInstructions;
-                        setInstructions(instructions);
-                        if (skillsList.length !== 10){
-                            skillsList.splice(newInstructions.id, 0, newInstructions);
-                        }
-                    }
-                    record++;
-                    setRecord(record);
-                }
+            else{ 
+                restartGame()
             }
         }
-  
+        if((event.key === 'q' || event.key === 'Q') && isGameStarted){
+            addToSpheresRow('Q')
+        }
+        if((event.key === 'W' || event.key === 'w') && isGameStarted){
+            addToSpheresRow('W')
+        }
+        if((event.key === 'E' || event.key === 'e') && isGameStarted){
+            addToSpheresRow('E')
+
+        }
+        if((event.key === 'D' || event.key === 'd') && isGameStarted){
+
+        }
+        if((event.key === 'F' || event.key === 'f') && isGameStarted){
+
+        }
+        if((event.key === 'R' || event.key === 'r') && isGameStarted){
+            addToCastedSkills(invoke(spheresRow))
+            if(castedSkills[0] === instructions){                
+                instructions = getRandomSkill(skillsList).skillName;
+                setInstructions(instructions);
+                record++;
+                setRecord(record);
+                
+            }
+        }
+    }
+
+    function invoke(spheresRow){
+        for (let q = 0; q<skillsList.length; q++){
+            let skill = skillsList[q];
+            let checker = 0;
+            let spheres = [...spheresRow];
+            let comb = skill.combination.split('');
+            let i = 0;
+            let j = 0;
+            while(comb.length>0 || checker!==3){
+                if (spheres[i] === comb[j]){
+                    comb.splice(j, 1);
+                    spheres.splice(i, 1);
+                    checker++;
+                    i = 0;
+                    j = 0;
+
+                }
+
+                if (spheres[i] !== comb[j]) i++;
+
+                if(checker === 3) return skill.skillName;
+
+                if (i === spheres.length && checker!==3) break;
+
+                if ((skill.combination.length === 1 && spheres.length === 1) && skill.combination[0] !== spheres[0]) break;
+
+                if (i === spheres.length && (spheres[i] !== comb[j])) break;
+            }
+        }
+
+    }
+
+    useEffect(() => {
+
         window.addEventListener('keypress', handleKeyPress);
   
         return () => {
@@ -76,54 +119,19 @@ export default function Game() {
     }, []);
 
     function addToCastedSkills(skill){
-        for(let i = 0; i<castedSkills; i++){
-            if (castedSkills[i] === ''){
-                castedSkills[i] = skill;
-                setCastedSkills(castedSkills);
-                return;
-            }
-        }
+        if (castedSkills[0] === skill) return
         castedSkills[1] = castedSkills[0];
         castedSkills[0] = skill;
         setCastedSkills(castedSkills)
     }
-
-    function combinationCheck(spheres, comb){
-        let i = 0;
-        let j = 0;
-        let checker = 0;
-        while(comb.length>0 || checker!==3){
-            if (spheres[i] === comb[j]){
-                comb.splice(j, 1);
-                spheres.splice(i, 1);
-                checker++;
-                i = 0;
-                j = 0;
-            }
-            if (spheres[i] !== comb[j]){
-                i++;
-            }
-            if (i === spheres.length && checker!==3){
-                return false;
-            }
-            if ((comb.length === 1 && spheres.length === 1) && comb[0] !== spheres[0]){
-                return false;
-            }
-            if(checker === 3){
-                return true;
-            }
-        }
-    }
   
     function addToSpheresRow(sphere){
         let newSpheresRow = [...spheresRow];
-        console.log(newSpheresRow)
         for(let i = 0; i<spheresRow.length; i++){
           if (newSpheresRow[i] === ''){
               newSpheresRow[i] = sphere;
               setSpheresRow(newSpheresRow)
               spheresRow = [...newSpheresRow]
-              console.log(newSpheresRow)
               return;
           }
         }
@@ -134,6 +142,7 @@ export default function Game() {
         setSpheresRow(newSpheresRow)
     }
 
+    
     function getRandomSkill(arr) {
         const randomIndex = Math.floor(Math.random() * arr.length);
         return arr[randomIndex];
@@ -143,6 +152,13 @@ export default function Game() {
         console.log(tries, isGameStarted, record, isGameStarted)
     }
 
+    function resetHandleKeyPress(){
+        window.removeEventListener('keypress', handleKeyPress)
+        isGameStarted = false;
+        setIsGameStarted(false)
+        window.addEventListener('keypress', handleKeyPress)
+    }
+
 
 
   return (
@@ -150,21 +166,21 @@ export default function Game() {
         <h1 className='gameName'>Invo Game</h1>
         <Timer 
             isGameStarted={isGameStarted} 
-            setIsGameStarted={setIsGameStarted}/>
+            setIsGameStarted={setIsGameStarted}
+            resetHandleKeyPress={resetHandleKeyPress}
+            isRecordWindowShowed={isRecordWindowShowed}
+            setIsRecordWindowShowed={setIsRecordWindowShowed}
+        />
         <InstructionsDiv 
-            instructions={instructions.skillName}
-            isGameStarted={isGameStarted}/>
+            instructions={instructions}
+            isGameStarted={isGameStarted}
+        />
         <SpheresRow spheresRow={spheresRow}/>
         <SkillsPad castedSkills={castedSkills}/>
         {
-            (tries > 0 && !isGameStarted) && 
-                <RecordWindow 
-                    tries={tries}
-                    record={record}
-                    isGameStarted={isGameStarted}
-                    setIsGameStarted={setIsGameStarted}
-                />
+            isRecordWindowShowed && <RecordWindow tries={tries} record={record}/>
         }
+
         <button onClick={showPenis}> show</button>
         
 

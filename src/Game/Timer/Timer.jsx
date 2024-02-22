@@ -1,20 +1,28 @@
 import React, {useEffect, useState} from 'react'
 import './Timer.css'
 
-export default function Timer({isGameStarted, setIsGameStarted}) {
+export default function Timer({isGameStarted, setIsGameStarted, resetHandleKeyPress, isRecordWindowShowed,setIsRecordWindowShowed}) {
     let [seconds, setSeconds] = useState(10)
     let [miliseconds, setMiliseconds] = useState(0)
 
     useEffect(() => {
         if (isGameStarted){
-           
-            setInterval(() => {
+           console.log(isRecordWindowShowed)
+            const intervalId = setInterval(() => {
                 if(seconds === 0 && miliseconds === 0){
                     isGameStarted = false
                     setIsGameStarted(isGameStarted)
-                    setMiliseconds(0)
-                    setSeconds(10)
-                    return;
+                    console.log('game finished')
+                    seconds = 10;
+                    miliseconds = 0;
+                    setMiliseconds(miliseconds)
+                    setSeconds(seconds)
+                    clearInterval(intervalId)
+                    isRecordWindowShowed = true
+                    setIsRecordWindowShowed(true)
+                    resetHandleKeyPress()
+                    return
+                    
                 }
                 if (miliseconds < 0){
                     miliseconds = 99;
@@ -22,15 +30,11 @@ export default function Timer({isGameStarted, setIsGameStarted}) {
                     seconds--;
                     setSeconds(seconds);
                 }
-                miliseconds--;
-                setMiliseconds(miliseconds)
+                else{
+                    miliseconds--;
+                    setMiliseconds(miliseconds)
+                }
             }, 10)
-
-            
-            if (seconds === 0){
-                isGameStarted = false;
-                setIsGameStarted(isGameStarted);
-            }
         }
         
     }, [isGameStarted])
