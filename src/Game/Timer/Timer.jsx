@@ -7,11 +7,10 @@ export default function Timer({isGameStarted, setIsGameStarted, resetHandleKeyPr
 
     useEffect(() => {
         if (isGameStarted){
-           console.log(isRecordWindowShowed)
             const intervalId = setInterval(() => {
                 if(seconds === 0 && miliseconds === 0){
                     isGameStarted = false
-                    setIsGameStarted(isGameStarted)
+                    setIsGameStarted(false)
                     console.log('game finished')
                     seconds = 10;
                     miliseconds = 0;

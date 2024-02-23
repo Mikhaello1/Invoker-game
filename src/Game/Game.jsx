@@ -7,8 +7,6 @@ import skillsList from './skillsList.js';
 import Timer from './Timer/Timer.jsx';
 import RecordWindow from './RecordWindow/RecordWindow.jsx';
 
-//сделать рестарт и появление окна рекорда через display: none/flex или опасити хз
-
 export default function Game() {
     let [isGameStarted, setIsGameStarted] = useState(false);
     let [instructions, setInstructions] = useState('');
@@ -49,30 +47,33 @@ export default function Game() {
                 restartGame()
             }
         }
-        if((event.key === 'q' || event.key === 'Q') && isGameStarted){
+
+        if((event.key === 'q' || event.key === 'Q' || event.key === 'й' || event.key === 'Й') && isGameStarted){
             addToSpheresRow('Q')
         }
-        if((event.key === 'W' || event.key === 'w') && isGameStarted){
+
+        if((event.key === 'W' || event.key === 'w' || event.key === 'й' || event.key === 'Й') && isGameStarted){
             addToSpheresRow('W')
         }
-        if((event.key === 'E' || event.key === 'e') && isGameStarted){
+
+        if((event.key === 'E' || event.key === 'e' || event.key === 'ц' || event.key === 'Ц') && isGameStarted){
             addToSpheresRow('E')
-
         }
-        if((event.key === 'D' || event.key === 'd') && isGameStarted){
 
-        }
-        if((event.key === 'F' || event.key === 'f') && isGameStarted){
-
-        }
-        if((event.key === 'R' || event.key === 'r') && isGameStarted){
+        if((event.key === 'R' || event.key === 'r' || event.key === 'к' || event.key === 'К') && isGameStarted){
             addToCastedSkills(invoke(spheresRow))
-            if(castedSkills[0] === instructions){                
-                instructions = getRandomSkill(skillsList).skillName;
+            if(castedSkills[0] === instructions){ 
+                let newSkillsList = [...skillsList];
+                let skillToDelete;
+                for (let i = 0; i<newSkillsList.length; i++){
+                    if (newSkillsList[i].skillName === instructions){
+                        newSkillsList.splice(i, 1)
+                    }
+                }               
+                instructions = getRandomSkill(newSkillsList).skillName;
                 setInstructions(instructions);
                 record++;
                 setRecord(record);
-                
             }
         }
     }
@@ -112,10 +113,10 @@ export default function Game() {
     useEffect(() => {
 
         window.addEventListener('keypress', handleKeyPress);
-  
-        return () => {
-            window.removeEventListener('keypress', handleKeyPress);
-        };
+    
+            return () => {
+                window.removeEventListener('keypress', handleKeyPress);
+            };
     }, []);
 
     function addToCastedSkills(skill){
@@ -149,7 +150,7 @@ export default function Game() {
     }
 
     function showPenis(){
-        console.log(tries, isGameStarted, record, isGameStarted)
+        console.log(isGameStarted)
     }
 
     function resetHandleKeyPress(){
